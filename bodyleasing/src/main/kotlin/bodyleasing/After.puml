@@ -1,0 +1,229 @@
+@startuml
+
+package "Identity and access management bounded context" <<Rectangle>> {
+    class User <<Aggregate Root>> {
+        - userName: String
+        - password: String
+    }
+
+    class RoleId <<Value Object>> {
+        - id: String
+    }
+
+    class Role <<Aggregate Root>> {
+        - name: String
+    }
+
+    User o-- RoleId : +gainedSecurityRoles
+    Role o-- RoleId
+}
+
+package "Common types" <<Rectangle>> {
+    class UserId <<Value Object>> {
+        - id: Char
+    }
+
+    class ProjectId <<Value Object>> {
+        - id: String
+    }
+
+    class CustomerId <<Value Object>> {
+        - id: String
+    }
+
+    User o-- UserId
+}
+
+package "Freelancer Management Domain Layer" <<Rectangle>> {
+
+    class Freelancer <<Aggregate Root>> {
+        - id: String
+        - name1: String
+        - name2: String
+        - zipCode: String
+        - city: String
+
+        + getAddress(): Address
+        + moveTo(Address)
+    }
+    Freelancer o-- UserId
+
+    class FreelancerId <<Value Object>> {
+        - id: String
+    }
+    Freelancer o-- FreelancerId
+
+    class TimeSheet <<Aggregate Root>> {
+        - id: String,
+        - year: Int,
+        - month: Int,
+        - hoursWorked: Int
+    }
+    TimeSheet o-- FreelancerId
+
+    class TimeSheetId <<Value Object>> {
+        - id: String
+    }
+    TimeSheet o-- TimeSheetId
+
+    enum ContactType <<Enumeration>> {
+        FAX
+        MAIL
+        MOBILE
+    }
+
+    class CommunicationChannel <<Value Object>> {
+        - vale: String
+    }
+    Freelancer *-- "0..*" CommunicationChannel
+    CommunicationChannel "0..*" o-- ContactType
+
+    class Address<<Value Object>> {
+        - name1: String,
+        - name2: String,
+        - zipCode: String,
+        - city: String
+
+        + getName1(): String
+        + getName2(): String
+        + getZipCode(): String
+        + getCity(): String
+        + changeName1(String): Address
+        + changeName2(String): Address
+        + changeZipCode(String): Address
+        + changeCity(String): Address
+    }
+    Freelancer *-- Address
+
+    interface EventStore <<Domain Repository>> {
+        + store(DomainEvent)
+    }
+
+    class TimeSheetEntered <<Domain Event>> { }
+
+    interface FreelancerRepository <<Domain Repository>> {
+        + findById(FreelancerId): Freelancer
+        + add(Freelancer)
+        + remove(Freelancer)
+        + findByName(String): Collection<Freelancer>
+    }
+
+    class FreelancerService <<Domain Service>> {
+        + timesheetEntered(FreelancerId)
+    }
+    FreelancerService o-- EventStore
+    FreelancerService o-- FreelancerRepository
+    FreelancerService ..> TimeSheetEntered : "instantiate"
+    FreelancerService ..> Freelancer : "use"
+}
+
+package "Freelancer Management Application Layer" {
+    class FreelancerApplicationService <<Application Service>> {
+        + freelancerMoved(FreelancerApplicationCommand)
+        + getPresentationModelFor(FreelancerId): FreelancerPresentationModel
+        + timesheetEntered(FreelancerId)
+    }
+    FreelancerApplicationService ..> FreelancerService : "use"
+}
+
+package "Freelancer Management Infrastructure Layer" {
+    class HibernateFreelancerRepository {
+        + findById(FreelancerId): Freelancer
+        + add(Freelancer)
+        + remove(Freelancer)
+        + findByName(String): Collection<Freelancer>
+    }
+    HibernateFreelancerRepository ..|> FreelancerRepository
+
+    class HibernateStore { }
+    HibernateStore ..|> EventStore
+
+    class JMSMessagingAdapter <<Timer>> { }
+    JMSMessagingAdapter ..> HibernateStore : "use"
+
+}
+
+package "Customer Management Domain Layer" <<Rectangle>> {
+
+    interface ProjectManagementAdapter {
+        + projectExistForCustomer(CustomerId): Boolean
+    }
+
+    interface CustomerRepository <<Customer Repository>> {
+        + removedById(CustomerId)
+    }
+
+    class Customer <<Aggregate Root>> {
+        - name: String
+    }
+    Customer o-- CustomerId
+
+    class CustomerService <<Domain Service>> {
+        + deleteCustomerById(CustomerId)
+        + timesheetEntered(TimeSheetEntered)
+    }
+    CustomerService o-- ProjectManagementAdapter
+    CustomerService ..> Customer : "use"
+    CustomerService ..> CustomerRepository : "use"
+    CustomerService ..> TimeSheetEntered : "use"
+}
+
+package "Customer Management Application Layer" {
+
+    class CustomerApplicationService <<Application Service>> {
+        + timesheetEntered(TimeSheetEntered)
+    }
+    CustomerApplicationService ..> TimeSheetEntered : "use"
+    CustomerApplicationService ..> CustomerService : "use"
+}
+
+package "Customer Management Infrastructure Layer" {
+    class RestAdapter { }
+    RestAdapter ..|> ProjectManagementAdapter
+
+    class SOAPAdapter { }
+    SOAPAdapter ..|> ProjectManagementAdapter
+
+    class JMSMessageReceiver { }
+    JMSMessageReceiver ..> CustomerApplicationService : "use"
+}
+
+package "Project management Domain Layer" <<Rectangle>> {
+
+    interface ProjectRepository <<Domain Repository>> {
+        + findById(ProjectId): Project
+    }
+
+    class Project <<Aggregate Root>> {
+        - name: String
+    }
+    Project o-- ProjectId
+    Project o-- CustomerId
+
+    class ProjectService <<Domain Service>> {
+        + projectExistsFor(CustomerId) Boolean
+    }
+
+    ProjectService ..> "use" Project
+    ProjectService o-- ProjectRepository
+}
+
+package "Project management Application Layer" <<Rectangle>> {
+
+    class ProjectApplicationService <<Application Service>> {
+        + projectExistsFor(CustomerId): Boolean
+    }
+
+    ProjectApplicationService ..> ProjectService : "use"
+}
+
+package "Project management Infrastructure Layer" <<Rectangle>> {
+
+    class ProjectSOAPService <<Web Service EndPoint>> { }
+    ProjectSOAPService ..> ProjectApplicationService : "use"
+
+    class HibernateProjectRepository { }
+    HibernateProjectRepository ..|> ProjectRepository
+}
+
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+
+class User {
+    -userName: String
+    -password: String
+}
+
+class Role {
+    -name: String
+}
+
+class Freelancer {
+    -id: String
+    -name1: String
+    -name2: String
+    -zipCode: String
+    -city: String
+}
+
+class TimeSheet {
+    -id: String,
+    -year: Int,
+    -month: Int,
+    -hoursWorked: Int
+}
+
+class ContactInformation {
+    -id: String
+    -vale: String
+}
+
+class ContactType {
+    -id: String,
+    -isEmail: Boolean,
+    -isPhone: Boolean
+    -isMobile: Boolean
+}
+
+class Project {
+    -id: String
+}
+
+class Customer {
+    -id: String
+}
+
+User <--> Role : +gainedSecurityRoles
+Freelancer o-- User
+Freelancer o-- TimeSheet
+Freelancer o-- "0..*" Project
+Freelancer *-- "0..*" ContactInformation : +contactInformation
+ContactInformation o-- ContactType : +contactType
+TimeSheet o-- Project
+Project o-- Customer
+
+@enduml
