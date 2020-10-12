@@ -1,4 +1,5 @@
 rootProject.name = "DDDSample"
 include(
-    ":bodyleasing"
+    ":bodyleasing",
+	":moneytransfer"
 )

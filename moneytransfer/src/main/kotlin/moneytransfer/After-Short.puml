@@ -1,0 +1,164 @@
+@startuml
+
+package "Host" <<Rectangle>> {
+}
+
+package "Person Domain Layer" <<Rectangle>> {
+    class Phone <<Value Object>> {
+        - number: String
+    }
+
+    class PersonId <<Value Object>> { }
+    class Person <<Entity>> {
+        - id: PersonId
+        - personName: PersonName
+        - phone: Phone
+        - card: CardId
+    }
+    Person o-- PersonId
+    Person o-- Phone
+}
+
+package "User Domain Layer" <<Rectangle>> {
+    class UserId <<Value Object>>
+    class User <<Entity>> {
+        - id: UserId
+        - person: PersonId
+        - password: Password
+    }
+    User o-- UserId
+    User o-- PersonId
+
+    class SessionId <<Value Object>> { }
+    class Session <<Entity>> {
+        - id: SessionId
+        - expireDate: Date
+    }
+    Session o-- SessionId
+
+    interface SignInRepository {
+        + signIn(user: User, code: ConfirmCode): SessionId
+    }
+    SignInRepository ..> User : "use"
+    SignInRepository ..> SessionId : "use"
+
+    class SignIn <<UserCase>> {
+        - invoke(user: User, code: ConfirmCode):  SessionId
+    }
+    SignIn o-- SignInRepository
+}
+package "User Data Layer" <<Rectangle>> {
+}
+"User Data Layer" ..> SignInRepository
+
+package "User Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "User Presentation Layer"
+"User Presentation Layer" ..> "User Domain Layer"
+
+package "Country Domain Layer" <<Rectangle>> {
+    class CountryId <<Value Object>> { }
+    class Country <<Entity>> {
+        - id: CountryId
+        - name: String
+        - code: String
+    }
+    Country o-- CountryId
+
+    interface CountryRepository {
+        + findCountryById(id: CountryId) Country
+        + getCountries(): Country[]
+    }
+
+    class GetCountries <<UseCase>> {
+        + invoke(): Countries
+    }
+    GetCountries o-- CountryRepository
+    GetCountries ..> "use" Country
+}
+
+package "Country Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "Country Presentation Layer"
+"Country Presentation Layer" ..> GetCountries : "use"
+
+package "Transfer Domain Layer" <<Rectangle>> {
+    class Commission <<Value Object>> {
+        - value: Money
+    }
+
+    enum Currency <<Value Object>> {
+        + RUB,
+        + EUR,
+        + USD
+    }
+
+    class Money <<Value object>> {
+         - value: BigDecimal
+         - currency: Currency
+    }
+    Money o-- Currency
+
+    class TransferId <<Value Object>> { }
+    class Transfer <<Aggregate Root>> {
+        - id: TransferId
+        - country: CountryId
+        - amount: Money
+        - receiver: PersonId
+        - commission: Commission
+        - total: Money
+    }
+    Transfer o-- TransferId
+    Transfer o-- CountryId
+    Transfer o-- Money
+    Transfer o-- PersonId
+    Transfer o-- Commission
+
+    class TransferBuilder {
+        + ...
+        + build(): Transfer
+    }
+    Transfer *-- TransferBuilder : "build"
+
+    class TransferNumber <<Value Object>> { }
+
+    interface TransferRepository {
+        + calculateCommission(amount: Money, country: Country) Commission
+        + confirm(transfer: Transfer): Status
+        + sendTransfer(phone: Phone, card: Card, transfer: Transfer): TransferNumber
+    }
+    TransferRepository ..> TransferNumber : "use"
+
+    class CreateTransfer <<UseCase>> {
+        + invoke(): TransferBuilder
+    }
+    CreateTransfer o-- TransferRepository
+
+    class CalculateCommission <<UseCase>> {
+        + invoke(amount: Money, country: Country): Commission
+    }
+    CalculateCommission o-- TransferRepository
+    CalculateCommission o-- CountryRepository
+
+    class ConfirmTransfer <<UseCase>> {
+        + invoke(transfer: TransferBuilder): Transfer
+    }
+    ConfirmTransfer o-- TransferRepository
+
+    class SendTransfer <<UseCase>> {
+        + invoke(sender: Sender, transfer: Transfer): TransferNumber
+    }
+    SendTransfer o-- TransferRepository
+}
+
+package "Transfer Data Layer" <<Rectangle>> {
+}
+"Transfer Data Layer" ..> TransferRepository
+
+package "Transfer Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "Transfer Presentation Layer"
+"Transfer Presentation Layer" ..> "Transfer Domain Layer"
+
+
+@enduml
