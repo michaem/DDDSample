@@ -1,0 +1,33 @@
+@startuml
+
+class Money <<Value object>> {
+     - value: BigDecimal
+     - currency: Currency
+}
+
+class Commission <<Value Object>> {
+    - value: Money
+}
+
+class CountryId <<Value Object>> {
+    - id: String
+}
+
+class ReceiverId <<Value Object>>
+
+class TransferId <<Value Object>>
+class Transfer <<Aggregate Root>> {
+    - id: TransferId
+    - country: CountryId
+    - amount: Money
+    - receiver: ReceiverId
+    - commission: Commission
+    - total: Money
+}
+Transfer o-- TransferId
+Transfer o-- CountryId
+Transfer o-- Money
+Transfer o-- ReceiverId
+Transfer o-- Commission
+
+@enduml

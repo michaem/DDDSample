@@ -1,0 +1,51 @@
+@startuml
+
+package "Host" <<Rectangle>> {
+}
+
+package "Country Domain Layer" <<Rectangle>> {
+    class CountryId <<Value Object>>
+    class Country <<Entity>> {
+        - id: CountryId
+        - name: String
+        - code: String
+    }
+    Country o-- CountryId
+
+    interface CountryRepository {
+        + findCountryById(id: CountryId) Country
+        + getCountries(): Country[]
+    }
+
+    class GetCountries <<UseCase>> {
+        + invoke(): Countries
+    }
+    GetCountries o-- CountryRepository
+    GetCountries ..> "use" Country
+}
+
+package "Country Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "Country Presentation Layer"
+"Country Presentation Layer" o-- GetCountries
+
+package "Transfer Domain Layer" <<Rectangle>> {
+    class Transfer <<Aggregate Root>> {
+        - country: CountryId
+        - amount: Money
+    }
+    class Transfer.Builder {
+        + country(country: CountryId)
+        + amount(amount: Money)
+        + build(): Transfer
+    }
+    Transfer.Builder ..* Transfer
+}
+
+package "Transfer Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "Transfer Presentation Layer" : use
+"Transfer Presentation Layer" ..> Transfer.Builder
+
+
+@enduml

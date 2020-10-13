@@ -1,0 +1,42 @@
+@startuml
+
+together {
+    class SessionId <<Value Object>> {
+        - id: String
+    }
+    class Session << Entity >> {
+        - sessionId: SessionId
+        - expireDate: Date
+    }
+    Session o-- SessionId
+}
+
+together {
+    class CardId <<Value Object>> {
+        - id: String
+    }
+    class Card << Entity >> {
+        - id: CardId
+        - number: String
+    }
+    Card o-- CardId
+}
+
+together {
+    class CountryId <<Value Object>> {
+        - id: String
+    }
+    class Country <<Entity>> {
+        - id: CountryId
+        - name: String
+        - code: String
+    }
+    Country o-- CountryId
+}
+
+together {
+    class Receiver << ? >>
+    class Transfer << ? >>
+}
+
+@enduml

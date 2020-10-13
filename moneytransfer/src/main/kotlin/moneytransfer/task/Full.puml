@@ -1,0 +1,190 @@
+@startuml
+
+package "Host" <<Rectangle>> {
+}
+
+package "Country Domain Layer" <<Rectangle>> {
+    class CountryId <<Value Object>>
+    class Country <<Entity>> {
+        - id: CountryId
+        - name: String
+        - code: String
+    }
+    Country o-- CountryId
+
+    interface CountryRepository {
+        + findCountryById(id: CountryId) Country
+        + getCountries(): Country[]
+    }
+
+    class GetCountries <<UseCase>> {
+        + invoke(): Countries
+    }
+    GetCountries o-- CountryRepository
+    GetCountries ..> "use" Country
+}
+
+package "Country Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "Country Presentation Layer" : use
+"Country Presentation Layer" o-- GetCountries
+
+package "Country Data Layer" <<Rectangle>> {
+}
+"Country Data Layer" <|.. CountryRepository
+
+package "Common Domain Layer" <<Rectangle>> {
+    class Phone <<Value Object>> {
+        - number: String
+    }
+
+    class CardId <<Value Object>> { }
+    class Card <<Entity>> {
+        - id: CardId
+        - number: String
+    }
+    Card o-- CardId
+}
+
+package "Receiver Domain Layer" <<Rectangle>> {
+    class ReceiverId <<Value Object>>
+    class Receiver <<Aggregate Root>> {
+        - id: ReceiverId
+        - firstName: String
+        - secondName: String
+        - phone: Phone
+        - card: CardId
+    }
+    Receiver o-- ReceiverId
+    Receiver o-- Phone
+    Receiver o-- CardId
+
+    interface ReceiverRepository {
+        + findReceiverById(id: ReceiverId): Receiver
+    }
+
+    class FillReceiver <<UseCase>> {
+        + invoke(...): ReceiverId
+    }
+    FillReceiver ..> ReceiverId
+
+    ReceiverRepository ..> Receiver : "use"
+}
+
+package "Receiver Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "Receiver Presentation Layer"
+"Receiver Presentation Layer" ..> FillReceiver
+
+package "Receiver Data Layer" <<Rectangle>> {
+}
+"Receiver Data Layer" <|.. ReceiverRepository
+
+package "User Domain Layer" <<Rectangle>> {
+    class SessionId <<Value Object>> { }
+    class Session <<Entity>> {
+        - id: SessionId
+        - expireDate: Date
+    }
+    Session o-- SessionId
+
+    interface SignInRepository {
+        + signIn(phone: Phone, code: ConfirmCode): SessionId
+        + getSessionId(): SessionId
+    }
+    SignInRepository ..> Phone : pass
+    SignInRepository ..> SessionId : use
+
+    class SignIn <<UserCase>> {
+        - invoke(phone: Phone, code: ConfirmCode):  SessionId
+    }
+    SignIn o-- SignInRepository
+}
+package "User Data Layer" <<Rectangle>> {
+}
+"User Data Layer" ..> SignInRepository
+
+package "User Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "User Presentation Layer"
+"User Presentation Layer" o-- SignIn
+
+package "Transfer Domain Layer" <<Rectangle>> {
+    class Commission <<Value Object>> {
+        - value: Money
+    }
+
+    enum Currency <<Value Object>> {
+        + RUB,
+        + EUR,
+        + USD
+    }
+
+    class Money <<Value object>> {
+         - value: BigDecimal
+         - currency: Currency
+    }
+    Money o-- Currency
+
+    class Transfer <<Aggregate Root>> {
+        - id: TransferId
+        - country: CountryId
+        - amount: Money
+        - receiver: ReceiverId
+        - commission: Commission
+        - total: Money
+    }
+    class Transfer.Builder {
+        + country(country: CountryId)
+        + amount(amount: Money)
+        + receiver(receiver: ReceiverId)
+        + commission(commission: Commission)
+        + build(): Transfer
+    }
+    Transfer.Builder ..* Transfer
+    Transfer o-- Money
+
+    class TransferNumber <<Value Object>>
+
+    interface TransferRepository {
+        + calculateCommission(amount: Money, country: Country) Commission
+        + confirm(transfer: Transfer): Status
+        + sendTransfer(phone: Phone, card: Card, transfer: Transfer): TransferNumber
+    }
+    SendTransfer ..> TransferNumber
+
+    class CreateTransfer <<UseCase>> {
+        + invoke(): Transfer.Builder
+    }
+    CreateTransfer ..> Transfer.Builder : use
+
+    class CalculateCommission <<UseCase>> {
+        + invoke(amount: Money, country: CountryId): Commission
+    }
+    CalculateCommission ..> Commission : use
+    CalculateCommission o-- TransferRepository
+    CalculateCommission o-- CountryRepository
+
+    class ConfirmTransfer <<UseCase>> {
+        + invoke(transfer: Transfer.Builder): Transfer
+    }
+    ConfirmTransfer o-- TransferRepository
+    ConfirmTransfer ..> Transfer.Builder : pass
+    ConfirmTransfer ..> Transfer : use
+
+    class SendTransfer <<UseCase>> {
+        + invoke(phone: Phone, card: CardId, transfer: Transfer): TransferNumber
+    }
+    SendTransfer o-- TransferRepository
+    SendTransfer ..> CardId : pass
+}
+
+package "Transfer Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "Transfer Presentation Layer"
+"Transfer Presentation Layer" o-- CreateTransfer
+"Transfer Presentation Layer" o-- CalculateCommission
+"Transfer Presentation Layer" o-- ConfirmTransfer
+
+
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+
+package "Host" <<Rectangle>> {
+}
+
+package "Common Domain Layer" <<Rectangle>> {
+    class Phone <<Value Object>> {
+        - number: String
+    }
+}
+
+package "Transfer Domain Layer" <<Rectangle>> {
+    class Transfer <<Aggregate Root>>
+
+    interface TransferRepository {
+        + sendTransfer(phone: Phone, card: Card, transfer: Transfer): TransferNumber
+    }
+
+    class SendTransfer <<UseCase>> {
+        + invoke(phone: Phone, card: CardId, transfer: Transfer): TransferNumber
+    }
+    SendTransfer ..> Phone : pass
+    SendTransfer ..> Transfer : pass
+    SendTransfer o-- TransferRepository
+}
+
+package "Transfer Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "Transfer Presentation Layer"
+"Transfer Presentation Layer" o-- SendTransfer
+
+
+@enduml

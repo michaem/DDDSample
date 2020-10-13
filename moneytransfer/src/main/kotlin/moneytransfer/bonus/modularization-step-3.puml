@@ -1,0 +1,42 @@
+@startuml
+
+package "App" <<Rectangle>> {
+}
+
+together {
+    package "Common Subdomain" <<Rectangle>> {
+    }
+}
+
+together {
+    package "Country Subdomain" <<Rectangle>> {
+    }
+}
+
+together {
+    package "Receiver Subdomain" <<Rectangle>> {
+    }
+}
+
+together {
+    package "User Subdomain" <<Rectangle>> {
+    }
+}
+
+together {
+    package "Transfer Core Domain" <<Rectangle>> {
+    }
+    "Transfer Core Domain" ..> "Common Subdomain" : deps
+    "Transfer Core Domain" ..> "Country Subdomain" : deps
+    "Transfer Core Domain" ..> "Receiver Subdomain" : deps
+    "Transfer Core Domain" ..> "User Subdomain" : deps
+}
+
+"App" ..> "Transfer Core Domain" : deps
+"App" ..> "Country Subdomain" : deps
+"App" ..> "Common Subdomain" : deps
+"App" ..> "Receiver Subdomain" : deps
+"App" ..> "User Subdomain" : deps
+
+
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+package "Country Domain Layer" <<Rectangle>> {
+    interface CountryRepository {
+        + findCountryById(id: CountryId) Country
+        + getCountries(): Country[]
+    }
+}
+
+package "Country Data Layer" <<Rectangle>> {
+}
+"Country Data Layer" <|.. CountryRepository
+
+package "Transfer Domain Layer" <<Rectangle>> {
+    interface TransferRepository {
+        + calculateCommission(amount: Money, country: Country) Commission
+
+        + confirm(transfer: Transfer): Status
+
+        + sendTransfer(phone: Phone, card: Card, transfer: Transfer): TransferNumber
+    }
+
+    together {
+        class CalculateCommission <<UseCase>> {
+            + invoke(amount: Money, country: CountryId): Commission
+        }
+        CalculateCommission o-- TransferRepository
+        CalculateCommission o-- CountryRepository
+
+        class ConfirmTransfer <<UseCase>> {
+            + invoke(transfer: Transfer.Builder): Transfer
+        }
+        ConfirmTransfer o-- TransferRepository
+
+        class SendTransfer <<UseCase>> {
+            + invoke(sender: Sender, transfer: Transfer): TransferNumber
+        }
+        SendTransfer o-- TransferRepository
+    }
+}
+
+package "Transfer Data Layer" <<Rectangle>> {
+}
+"Transfer Data Layer" <|.. TransferRepository
+
+@enduml

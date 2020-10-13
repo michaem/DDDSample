@@ -1,0 +1,34 @@
+@startuml
+
+together {
+    class Phone <<Value Object>> {
+        - number: String
+    }
+
+    enum Currency <<Value Object>> {
+        + RUB,
+        + EUR,
+        + USD
+    }
+
+    class Money <<Value object>> {
+         - value: BigDecimal
+         - currency: Currency
+    }
+    Money o-- Currency
+
+    class Commission <<Value Object>> {
+        - value: Money
+    }
+    Commission o-- Money
+}
+
+together {
+    class Receiver << ? >>
+    class Session << ? >>
+    class Transfer << ? >>
+    class Card << ? >>
+    class Country << ? >>
+}
+
+@enduml

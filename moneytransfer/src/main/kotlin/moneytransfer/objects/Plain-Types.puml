@@ -1,0 +1,58 @@
+@startuml
+
+class Phone  {
+    - number: String
+}
+
+class Country {
+    - name: String
+}
+
+class Money {
+    - value: BigDecimal
+}
+
+class Currency {
+    - name: String
+    - code: String
+}
+
+class Card {
+    - number: String
+    - type: CardType
+}
+
+class Receiver {
+    - firstName: String,
+    - lastName: String,
+    - secondName: String,
+    - phone: Phone,
+    - card: Card
+}
+
+class Commission {
+    - amount: Money
+}
+
+
+class Transfer {
+    - country: Country
+    - amount: Money
+    - currency: Currency
+    - commission: Commission
+    - receiver: Receiver
+    - senderCard: Card
+    - senderPhone: Phone
+    - status: TransferStatus
+    ...
+}
+Transfer o-- Phone
+Transfer o-- Country
+Transfer o-- Money
+Transfer o-- Currency
+Transfer o-- Commission
+Transfer o-- Receiver
+Transfer o-- Card
+Transfer o-- TransferStatus
+
+@enduml

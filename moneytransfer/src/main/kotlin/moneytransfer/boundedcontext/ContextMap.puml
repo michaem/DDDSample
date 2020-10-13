@@ -1,0 +1,27 @@
+@startuml
+
+package "Transfer Context Map" <<Rectangle>> {
+
+    package "Transfer Bounded Context" <<Cloud>> {
+    }
+
+    package "User Bounded Context" <<Cloud>> {
+    }
+
+    package "Country Bounded Context" <<Cloud>> {
+    }
+
+    package "Receiver Bounded Context" <<Cloud>> {
+    }
+
+    package "Commission Bounded Context" <<Cloud>> {
+    }
+
+    "User Bounded Context" "Downstream" ..> "Upstream" "Transfer Bounded Context"
+    "Country Bounded Context"  ..> "Transfer Bounded Context"
+    "Receiver Bounded Context"  ..> "Upstream" "Transfer Bounded Context"
+    "Commission Bounded Context"  "Downstream" ..> "Transfer Bounded Context"
+}
+
+
+@enduml

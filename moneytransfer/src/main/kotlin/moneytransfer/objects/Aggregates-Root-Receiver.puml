@@ -1,0 +1,31 @@
+@startuml
+
+class Phone <<Value Object>> {
+    - number: String
+}
+class CardId <<Entity Object>> {
+    - id: String
+}
+class Card << Entity >> {
+    - id: CardId
+    - number: String
+}
+Card o-- CardId
+
+class ReceiverId <<Value Object>> {
+    id: String
+}
+class Receiver <<Aggregate Root>> {
+    - id: ReceiverId
+    - firstName: String
+    - lastName: String
+    - phone: Phone
+    - cardId: CardId
+}
+Receiver o-- ReceiverId
+Receiver o-- Phone
+Receiver o-- CardId
+
+class Transfer <<?>>
+
+@enduml

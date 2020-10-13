@@ -1,0 +1,42 @@
+@startuml
+
+package "App" <<Rectangle>> {
+}
+
+together {
+    package "Transfer Bounded Context" <<Cloud>> {
+    }
+}
+
+together {
+    package "Country Bounded Context" <<Cloud>> {
+    }
+    "Country Bounded Context" "Downstream" ..> "Upstream" "Transfer Bounded Context"
+}
+
+together {
+    package "Common Bounded Context" <<Cloud>> {
+    }
+    "Common Bounded Context" "Downstream" ..> "Upstream" "Transfer Bounded Context"
+}
+
+together {
+    package "Receiver Bounded Context" <<Cloud>> {
+    }
+    "Receiver Bounded Context" "Downstream" ..> "Upstream" "Transfer Bounded Context"
+}
+
+together {
+    package "User Bounded Context" <<Cloud>> {
+    }
+    "User Bounded Context" "Downstream" ..> "Upstream" "Transfer Bounded Context"
+}
+
+"App" ..> "Transfer Bounded Context"
+"App" ..> "Country Bounded Context"
+"App" ..> "Common Bounded Context"
+"App" ..> "Receiver Bounded Context"
+"App" ..> "User Bounded Context"
+
+
+@enduml

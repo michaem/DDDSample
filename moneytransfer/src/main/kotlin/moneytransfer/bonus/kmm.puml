@@ -1,0 +1,35 @@
+@startuml
+
+package "Platform" <<Rectangle>> {
+}
+
+package "KMM" <<Rectangle>> {
+    package "Country Domain Layer" <<Rectangle>> {
+    }
+
+    package "Common Domain Layer" <<Rectangle>> {
+    }
+
+    package "Receiver Domain Layer" <<Rectangle>> {
+    }
+
+    package "User Domain Layer" <<Rectangle>> {
+    }
+
+    package "Transfer Domain Layer" <<Rectangle>> {
+    }
+}
+
+package "Platform Presentation Layer" <<Rectangle>> {
+}
+
+package "Platform Data Layer" <<Rectangle>> {
+}
+
+"Platform Presentation Layer" ..> "KMM" : use
+"Platform Data Layer" ..> "KMM" : use
+"Platform" ..> "Platform Presentation Layer" : use
+"Platform" ..> "Platform Data Layer" : use
+
+
+@enduml

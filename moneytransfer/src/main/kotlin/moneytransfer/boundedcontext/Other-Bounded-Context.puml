@@ -1,0 +1,35 @@
+@startuml
+
+package "Country Bounded Context" <<Rectangle>> {
+    class Country
+
+    class GetCountries {
+        + invoke(): Countries
+    }
+    GetCountries ..> Country : use
+}
+
+package "Transfer Bounded Context" <<Rectangle>> {
+    class Transfer
+
+    class TransferNumber
+
+    class CreateTransfer {
+        invoke(): Transfer
+    }
+    CreateTransfer ..> Transfer : use
+
+    class SendTransfer {
+        invoke(transfer: Transfer): TransferNumber
+    }
+    SendTransfer ..> Transfer
+    SendTransfer ..> TransferNumber
+
+    class ConfirmTransfer {
+        invoke(transfer: Transfer): Status
+    }
+    ConfirmTransfer ..> Transfer
+}
+
+
+@enduml

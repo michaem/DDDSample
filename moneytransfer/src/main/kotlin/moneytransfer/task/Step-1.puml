@@ -1,0 +1,27 @@
+@startuml
+
+package "Host" <<Rectangle>> {
+}
+
+package "Transfer Domain Layer" <<Rectangle>> {
+    class Transfer <<Aggregate Root>> {
+        - id: TransferId
+    }
+    class Transfer.Builder {
+        + build(): Transfer
+    }
+    Transfer.Builder ..* Transfer
+
+    class CreateTransfer <<UseCase>> {
+        + invoke(): Transfer.Builder
+    }
+    CreateTransfer ..> Transfer.Builder : use
+}
+
+package "Transfer Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "Transfer Presentation Layer" : use
+"Transfer Presentation Layer" o-- CreateTransfer
+
+
+@enduml

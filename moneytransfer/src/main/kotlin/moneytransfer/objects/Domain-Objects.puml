@@ -1,0 +1,72 @@
+@startuml
+
+package "Receiver Bounded Context" <<Rectangle>> {
+    class Phone <<Value Object>> {
+        - number: String
+    }
+
+    class ReceiverId <<Value Object>>
+    class Receiver <<Aggregate Root>> {
+        - id: ReceiverId
+        - firstName: String
+        - secondName: String
+        - phone: Phone
+        - card: CardId
+    }
+    Receiver o-- ReceiverId
+    Receiver o-- Phone
+}
+
+package "User Bounded Context" <<Rectangle>> {
+    class SessionId <<Value Object>>
+    class Session <<Entity>> {
+        - id: SessionId
+        - expireDate: Date
+    }
+    Session o-- SessionId
+}
+
+package "Country Bounded Context" <<Rectangle>> {
+    class CountryId <<Value Object>>
+    class Country <<Entity>> {
+        - id: CountryId
+        - name: String
+        - code: String
+    }
+    Country o-- CountryId
+}
+
+package "Transfer Bounded Context" <<Rectangle>> {
+    class Commission <<Value Object>> {
+        - value: Money
+    }
+
+    enum Currency <<Value Object>> {
+        + RUB,
+        + EUR,
+        + USD
+    }
+
+    class Money <<Value object>> {
+         - value: BigDecimal
+         - currency: Currency
+    }
+    Money o-- Currency
+
+    class TransferId <<Value Object>>
+    class Transfer <<Aggregate Root>> {
+        - id: TransferId
+        - country: CountryId
+        - amount: Money
+        - receiver: ReceiverId
+        - commission: Commission
+        - total: Money
+    }
+    Transfer o-- TransferId
+    Transfer o-- CountryId
+    Transfer o-- Money
+    Transfer o-- ReceiverId
+    Transfer o-- Commission
+}
+
+@enduml

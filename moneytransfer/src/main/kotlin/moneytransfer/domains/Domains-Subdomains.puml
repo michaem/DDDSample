@@ -1,0 +1,26 @@
+@startuml
+
+package "User Generic Subdomain" <<Rectangle>> {
+    class User
+}
+
+package "Supporting Subdomains" <<Rectangle>> {
+    class Card
+    class Country
+    class Phone
+    class Money
+    class Currency
+    class Session
+}
+"Supporting Subdomains" <.. "User Generic Subdomain" : use
+
+package "Transfer Core Domain" <<Rectangle>> {
+    class Transfer
+    class Receiver
+    class TransferNumber
+    class Commission
+}
+"Transfer Core Domain" <.. "User Generic Subdomain" : use
+"Transfer Core Domain" <.. "Supporting Subdomains" : use
+
+@enduml

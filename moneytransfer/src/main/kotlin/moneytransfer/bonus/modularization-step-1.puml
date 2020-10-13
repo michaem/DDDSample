@@ -1,0 +1,65 @@
+@startuml
+
+package "App" <<Rectangle>> {
+}
+
+together {
+    package "Country Domain Layer" <<Rectangle>> {
+    }
+    package "Country Presentation Layer" <<Rectangle>> {
+    }
+    "App" ..> "Country Presentation Layer" : use
+    "Country Presentation Layer" ..> "Country Domain Layer" : use
+
+    package "Country Data Layer" <<Rectangle>> {
+    }
+    "Country Data Layer" ..> "Country Domain Layer" : use
+}
+
+together {
+    package "Common Domain Layer" <<Rectangle>> {
+    }
+}
+
+together {
+    package "Receiver Domain Layer" <<Rectangle>> {
+    }
+    "Receiver Domain Layer" ..> "Common Domain Layer" : use
+    package "Receiver Presentation Layer" <<Rectangle>> {
+    }
+    "App" ..> "Receiver Presentation Layer" : use
+    "Receiver Presentation Layer" ..> "Receiver Domain Layer" : use
+    package "Receiver Data Layer" <<Rectangle>> {
+    }
+    "Receiver Data Layer" ..> "Receiver Domain Layer" : use
+}
+
+together {
+    package "User Domain Layer" <<Rectangle>> {
+    }
+    "User Domain Layer" ..> "Common Domain Layer" : use
+    package "User Data Layer" <<Rectangle>> {
+    }
+    "User Data Layer" ..> "User Domain Layer" : use
+    package "User Presentation Layer" <<Rectangle>> {
+    }
+    "App" ..> "User Presentation Layer" : use
+    "User Presentation Layer" ..> "User Domain Layer" : use
+}
+
+together {
+    package "Transfer Domain Layer" <<Rectangle>> {
+    }
+    "Transfer Domain Layer" ..> "Common Domain Layer" : use
+    package "Transfer Presentation Layer" <<Rectangle>> {
+    }
+    "App" ..> "Transfer Presentation Layer" : use
+    "App" ..> "Transfer Presentation Layer" : use
+    "Transfer Presentation Layer" ..> "Transfer Domain Layer" : use
+    package "Transfer Data Layer" <<Rectangle>> {
+    }
+    "Transfer Data Layer" ..> "Transfer Domain Layer" : use
+}
+
+
+@enduml

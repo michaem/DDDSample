@@ -1,0 +1,66 @@
+@startuml
+
+package "Host" <<Rectangle>> {
+}
+
+package "Receiver Domain Layer" <<Rectangle>> {
+    class Phone <<Value Object>> {
+        - number: String
+    }
+
+    class CardId <<Value Object>> { }
+    class Card <<Entity>> {
+        - id: CardId
+        - number: String
+    }
+    Card o-- CardId
+
+    class ReceiverId <<Value Object>>
+    class Receiver <<Aggregate Root>> {
+        - id: ReceiverId
+        - firstName: String
+        - secondName: String
+        - phone: Phone
+        - card: CardId
+    }
+    Receiver o-- ReceiverId
+    Receiver o-- Phone
+    Receiver o-- CardId
+
+    interface ReceiverRepository {
+        + findReceiverById(id: ReceiverId): Receiver
+        + saveReceiver(receiver: Receiver)
+    }
+
+    class FillReceiver <<UseCase>> {
+        + invoke(...): ReceiverId
+    }
+    FillReceiver ..> ReceiverId
+    FillReceiver o-- ReceiverRepository
+
+    ReceiverRepository ..> Receiver : "use"
+}
+
+package "Receiver Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "Receiver Presentation Layer"
+"Receiver Presentation Layer" ..> FillReceiver
+
+package "Transfer Domain Layer" <<Rectangle>> {
+    class Transfer <<Aggregate Root>> {
+        - receiver: ReceiverId
+    }
+    class Transfer.Builder {
+        + receiver(receiver: ReceiverId)
+        + build(): Transfer
+    }
+    Transfer.Builder ..* Transfer
+}
+
+package "Transfer Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "Transfer Presentation Layer"
+"Transfer Presentation Layer" ..> "Transfer Domain Layer"
+
+
+@enduml

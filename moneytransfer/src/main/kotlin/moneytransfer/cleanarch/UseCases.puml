@@ -1,0 +1,68 @@
+@startuml
+
+package "Transfer Domain Layer" <<Rectangle>> {
+    together {
+        class Transfer <<Aggregate Root>> {
+            - id: TransferId
+            - country: CountryId
+            - amount: Money
+            - receiver: ReceiverId
+            - commission: Commission
+            - total: Money
+        }
+        class Transfer.Builder {
+            + country(country: CountryId)
+            + receiver(receiver: ReceiverId)
+            + amount(amount: Money)
+            + commission(commission: Commission)
+            + build(): Transfer
+        }
+        Transfer.Builder ..* Transfer
+    }
+
+    together {
+        class CreateTransfer <<UseCase>> {
+            + invoke(): Transfer.Builder
+        }
+        CreateTransfer ..> Transfer.Builder : use
+
+        class CalculateCommission <<UseCase>> {
+            + invoke(amount: Money, country: CountryId): Commission
+        }
+
+        class ConfirmTransfer <<UseCase>> {
+            + invoke(transfer: Transfer.Builder): Transfer
+        }
+        ConfirmTransfer ..> Transfer : use
+
+        class SendTransfer <<UseCase>> {
+            + invoke(sender: Sender, transfer: Transfer): TransferNumber
+        }
+        SendTransfer ..> Transfer : use
+
+        class GetTransfer <<UseCase>> {
+            + invoke(transfer: TransferNumber): Transfer
+        }
+    }
+}
+
+package "Transfer Presentation Layer" <<Rectangle>> {
+}
+"Transfer Presentation Layer" o-- CreateTransfer
+"Transfer Presentation Layer" o-- CalculateCommission
+"Transfer Presentation Layer" o-- ConfirmTransfer
+"Transfer Presentation Layer" o-- SendTransfer
+
+package "Host" <<Rectangle>> {
+}
+"Host" ..> "Transfer Presentation Layer" : use
+
+package "History Detail Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "History Detail Presentation Layer" : use
+"History Detail Presentation Layer" o-- GetTransfer
+
+
+
+
+@enduml

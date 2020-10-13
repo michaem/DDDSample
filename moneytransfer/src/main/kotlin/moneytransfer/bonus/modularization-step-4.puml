@@ -1,0 +1,42 @@
+@startuml
+
+package ":app" {
+}
+
+together {
+    package ":common" {
+    }
+}
+
+together {
+    package ":shared-country" {
+    }
+}
+
+together {
+    package ":shared-receiver" {
+    }
+}
+
+together {
+    package ":shared-user" {
+    }
+}
+
+together {
+    package ":feature-transfer" {
+    }
+    ":feature-transfer" ..> ":common" : impl
+    ":feature-transfer" ..> ":shared-country" : impl
+    ":feature-transfer" ..> ":shared-receiver" : impl
+    ":feature-transfer" ..> ":shared-user" : impl
+}
+
+":app" ..> ":feature-transfer" : impl
+":app" ..> ":shared-country" : impl
+":app" ..> ":common" : impl
+":app" ..> ":shared-receiver" : impl
+":app" ..> ":shared-user" : impl
+
+
+@enduml

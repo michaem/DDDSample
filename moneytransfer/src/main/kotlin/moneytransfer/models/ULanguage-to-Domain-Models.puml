@@ -1,0 +1,14 @@
+@startuml
+
+class User
+class Phone
+class Transfer
+class Country
+class Money
+class Currency
+class Receiver
+class Card
+class Session
+class TransferNumber
+
+@enduml

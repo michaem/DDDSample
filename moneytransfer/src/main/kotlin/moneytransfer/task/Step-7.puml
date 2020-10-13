@@ -1,0 +1,16 @@
+@startuml
+
+package "Host" <<Rectangle>> {
+}
+
+package "Transfer Domain Layer" <<Rectangle>> {
+    class TransferNumber <<Value Object>>
+}
+
+package "Transfer Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "Transfer Presentation Layer"
+"Transfer Presentation Layer" ..> TransferNumber : "use"
+
+
+@enduml

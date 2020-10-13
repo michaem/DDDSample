@@ -1,0 +1,38 @@
+@startuml
+
+package "Host" <<Rectangle>> {
+}
+
+package "Transfer Domain Layer" <<Rectangle>> {
+    class Commission <<Value Object>> {
+        - value: Money
+    }
+
+    class Transfer <<Aggregate Root>> {
+        - commission: Commission
+        - total: Money
+    }
+    class Transfer.Builder {
+        + commission(commission: Commission)
+        + build(): Transfer
+    }
+    Transfer.Builder ..* Transfer
+    Transfer o-- Commission
+
+    interface TransferRepository {
+        + calculateCommission(amount: Money, country: Country) Commission
+    }
+    class CalculateCommission <<UseCase>> {
+        + invoke(amount: Money, country: CountryId): Commission
+    }
+    CalculateCommission ..> Commission : use
+    CalculateCommission o-- TransferRepository
+}
+
+package "Transfer Presentation Layer" <<Rectangle>> {
+}
+"Host" ..> "Transfer Presentation Layer"
+"Transfer Presentation Layer" o-- CalculateCommission
+
+
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+
+package "Transfer Bounded Context" <<Rectangle>> {
+    class Transfer
+    class TransferNumber
+
+    class CreateTransfer {
+        invoke(): Transfer
+    }
+    CreateTransfer ..> Transfer : use
+
+    class SendTransfer {
+        invoke(transfer: Transfer): TransferNumber
+    }
+    SendTransfer ..> Transfer
+    SendTransfer ..> TransferNumber
+
+    class ConfirmTransfer {
+        invoke(transfer: Transfer.Builder): Transfer
+    }
+    ConfirmTransfer ..> Transfer
+}
+
+@enduml
